@@ -62,7 +62,7 @@ contract Streaming {
         uint256 deposit,
         uint256 startTime,
         uint256 stopTime
-    ) public payable returns (uint256 streamId) {
+    ) external payable returns (uint256 streamId) {
         deposit = msg.value;
         require(recipient != address(0x00), "Stream to the zero address");
         require(recipient != address(this), "Stream to the contract itself");
@@ -148,7 +148,7 @@ contract Streaming {
     }
 
     function withdrawFromStream(uint256 streamId)
-        public
+        external
         onlyValidateSreamId(streamId)
     {
         // check  Recipient
@@ -171,7 +171,7 @@ contract Streaming {
     }
 
     function getStream(uint256 streamId)
-        external
+        private
         view
         onlyValidateSreamId(streamId)
         returns (
@@ -183,12 +183,15 @@ contract Streaming {
             uint256 rate
         )
     {
-        sender = streams[streamId].sender;
-        recipient = streams[streamId].recipient;
-        deposit = streams[streamId].deposit;
-        startTime = streams[streamId].startTime;
-        stopTime = streams[streamId].stopTime;
-        rate = streams[streamId].rate;
+        Stream memory stream = streams[streamId];
+        return (
+            stream.sender,
+            stream.recipient,
+            stream.deposit,
+            stream.startTime,
+            stream.stopTime,
+            stream.rate
+        );
     }
 
     function cancelStream(uint256 streamId)
@@ -200,8 +203,10 @@ contract Streaming {
         // 1）validate streamId
         // 2) validate sender or recipent
         // 3)check stream cancel or end? through by the banlance( sender and recipient)
-
-        uint256 vestedAmount = balanceOf(streamId, streams[streamId].sender);
+        address sender;
+        address recipient;
+        (sender, recipient, , , , ) = getStream(streamId);
+        uint256 vestedAmount = balanceOf(streamId, sender);
 
         uint256 remainingAmount = balanceOf(
             streamId,
@@ -214,23 +219,19 @@ contract Streaming {
 
         streams[streamId].balance = 0;
 
-        if (remainingAmount > 0) {
-            (bool success, ) = payable(streams[streamId].recipient).call{
-                value: vestedAmount
-            }("");
+        if (vestedAmount > 0) {
+            (bool success, ) = payable(recipient).call{value: vestedAmount}("");
             require(success);
         }
         if (remainingAmount > 0) {
-            (bool success, ) = payable(streams[streamId].sender).call{
-                value: remainingAmount
-            }("");
+            (bool success, ) = payable(sender).call{value: remainingAmount}("");
             require(success);
         }
 
         emit CancelStream(
             streamId,
-            streams[streamId].sender,
-            streams[streamId].recipient,
+            sender,
+            recipient,
             vestedAmount,
             remainingAmount
         );
