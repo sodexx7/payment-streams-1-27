@@ -116,6 +116,10 @@ contract Streaming {
         returns (uint256 balance)
     {
         Stream memory stream = streams[streamId];
+        // if no balance,return 0,skip the next steps
+        if (stream.balance == 0) {
+            return 0;
+        }
         uint256 elapsedTime = elapsedTimeFor(streamId);
         uint256 due = elapsedTime * stream.rate;
 

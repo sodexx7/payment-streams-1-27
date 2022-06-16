@@ -23,6 +23,9 @@ describe("Withdraw from stream", () => {
         streamingContract = await Streaming.deploy();
 
         await streamingContract.deployed();
+    
+       
+        
     });
 
     beforeEach("#setup", async function () {
@@ -82,6 +85,43 @@ describe("Withdraw from stream", () => {
             // for the new startTimestamp, the elapsedTime is 5,last startTimestamp Corresponding elapsedTime is 10。
             expect(afterBalance).lt(beforeBalance)
             
+        });
+
+
+        it("should revertedWith Available balance is 0 after all balance withraw", async function () {
+            let timeToSet = stopTimestamp + 1;
+            await setTime(ethers.provider, timeToSet);
+            await streamingContract.connect(recipient1).withdrawFromStream(1)
+
+            await expect(
+                streamingContract.connect(recipient1).withdrawFromStream(1)
+            ).to.be.revertedWith("Available balance is 0");
+        });
+
+        it("should revertedWith Available balance is 0 after cancelStream", async function () {
+            let timeToSet = startTimestamp + 10;
+            await setTime(ethers.provider, timeToSet);
+            await streamingContract.connect(recipient1).cancelStream(1)
+          
+            await expect(
+                streamingContract.connect(recipient1).withdrawFromStream(1)
+            ).to.be.revertedWith("Available balance is 0");
+        });
+
+        it("should senderEth and recipient1Eth greater than their init eth value after cancelStream", async function () {
+            let timeToSet = startTimestamp + 50;
+            await setTime(ethers.provider, timeToSet);
+            initSenderEth = await ethers.provider.getBalance(sender.address);
+            initRecipient1Eth = await ethers.provider.getBalance(recipient1.address);
+            await streamingContract.connect(sender).cancelStream(1)
+           
+            senderEth = await ethers.provider.getBalance(sender.address);
+            recipient1Eth = await ethers.provider.getBalance(recipient1.address);
+            expect(senderEth).gt(initSenderEth);
+            expect(recipient1Eth).gt(initRecipient1Eth);
+
+            let stream = await streamingContract.connect(recipient1).getStream(1);
+            expect(stream.balance).eq(0);
         });
 
     });
