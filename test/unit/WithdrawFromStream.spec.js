@@ -58,6 +58,34 @@ describe("Withdraw from stream", () => {
 
     });
 
+    describe("#balance check", function () {
+
+
+        it("should balance less than deposit and greater than zero after withdrawFromStream executed between startTimestamp and stopTimestamp", async function () {
+            
+            let timeToSet = startTimestamp + 10;
+            await setTime(ethers.provider, timeToSet);
+
+            await streamingContract.connect(recipient1).withdrawFromStream(1);
+            let stream = await streamingContract.connect(recipient1).getStream(1);
+            expect(stream.balance).lt(deposit).gt(0);
+        });
+
+        it("should balance’s calculation based on the new startTimestamp after withdrawFromStream", async function () {
+            let timeToSet = startTimestamp + 10;
+            await setTime(ethers.provider, timeToSet);
+
+            const beforeBalance =  await streamingContract.connect(recipient1).balanceOf(1,recipient1.address);
+            await streamingContract.connect(recipient1).withdrawFromStream(1);
+            await setTime(ethers.provider, timeToSet+5);
+            const afterBalance =  await streamingContract.connect(recipient1).balanceOf(1,recipient1.address);
+            // for the new startTimestamp, the elapsedTime is 5,last startTimestamp Corresponding elapsedTime is 10。
+            expect(afterBalance).lt(beforeBalance)
+            
+        });
+
+    });
+
     describe("#gasCheck", function () {
         it("should happen within the gas limit", async function () {
             let timeToSet = stopTimestamp + 1;

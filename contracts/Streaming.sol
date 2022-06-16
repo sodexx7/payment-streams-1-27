@@ -171,13 +171,14 @@ contract Streaming {
     }
 
     function getStream(uint256 streamId)
-        private
+        public
         view
         onlyValidateSreamId(streamId)
         returns (
             address sender,
             address recipient,
             uint256 deposit,
+            uint256 balance,
             uint256 startTime,
             uint256 stopTime,
             uint256 rate
@@ -188,6 +189,7 @@ contract Streaming {
             stream.sender,
             stream.recipient,
             stream.deposit,
+            stream.balance,
             stream.startTime,
             stream.stopTime,
             stream.rate
@@ -205,7 +207,7 @@ contract Streaming {
         // 3)check stream cancel or end? through by the banlance( sender and recipient)
         address sender;
         address recipient;
-        (sender, recipient, , , , ) = getStream(streamId);
+        (sender, recipient, , , , , ) = getStream(streamId);
         uint256 vestedAmount = balanceOf(streamId, sender);
 
         uint256 remainingAmount = balanceOf(
