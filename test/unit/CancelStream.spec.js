@@ -49,6 +49,15 @@ describe("Cancel stream", () => {
             ).to.be.revertedWith("stream does not exist");
         });
 
+        it("should fail when stream has been cancel", async function () {
+            
+            await streamingContract.connect(recipient1).cancelStream(1)
+            
+            await expect(
+                streamingContract.connect(recipient1).cancelStream(1)
+            ).to.be.revertedWith("The stream has been cancel or end");
+        });
+
     });
 
     describe("#success", function () {

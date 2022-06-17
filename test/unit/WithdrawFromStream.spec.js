@@ -115,6 +115,18 @@ describe("Withdraw from stream", () => {
             expect(stream.balance).eq(0);
         });
 
+        it("should fail when stream has been end and withrawed,and then cancelStream", async function () {
+            let timeToSet = stopTimestamp + 1;
+            await setTime(ethers.provider, timeToSet);
+            
+            await streamingContract.connect(recipient1).withdrawFromStream(1)
+            await expect(
+                
+                streamingContract.connect(recipient1).cancelStream(1)
+            ).to.be.revertedWith("The stream has been cancel or end");
+         
+        });
+
     });
 
     describe("#success", function () {
