@@ -54,7 +54,7 @@ describe("Balance of stream", () => {
     describe("#success", function () {
 
         it("should return 0 balance for address not involved in stream", async function () {
-            const otherPartyBalance = await streamingContract.balanceOf(1, owner.address);
+            const otherPartyBalance = await streamingContract.connect(sender).balanceOf(1, owner.address);
             assert(otherPartyBalance.eq(0));
         });
 
@@ -64,8 +64,19 @@ describe("Balance of stream", () => {
         it("should happen within the gas limit", async function () {
             const BASE_GAS_USAGE = 44_000;
 
-            const currentGas = (await streamingContract.estimateGas.balanceOf(1, recipient1.address)).toNumber();
+            const currentGas = (await streamingContract.connect(sender).estimateGas.balanceOf(1, recipient1.address)).toNumber();
             assert(currentGas < BASE_GAS_USAGE);
         });
+    });
+
+    describe("#privileges check", function () {
+
+        it("should fail when the caller is not recipient or sender", async function () {
+
+            await expect(
+                streamingContract.connect(owner).balanceOf(1,recipient1.address)
+            ).to.be.revertedWith("caller is not the sender or the recipient of the stream");
+        });
+
     });
 });

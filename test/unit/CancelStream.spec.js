@@ -71,4 +71,15 @@ describe("Cancel stream", () => {
             assert(currentGas < BASE_GAS_USAGE);
         });
     });
+
+    describe("#privileges check", function () {
+
+        it("should fail when the caller is not recipient or sender", async function () {
+
+            await expect(
+                streamingContract.connect(owner).cancelStream(1)
+            ).to.be.revertedWith("caller is not the sender or the recipient of the stream");
+        });
+
+    });
 });

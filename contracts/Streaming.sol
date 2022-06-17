@@ -113,6 +113,7 @@ contract Streaming {
         public
         view
         onlyValidateSreamId(streamId)
+        onlySenderOrRecipient(streamId)
         returns (uint256 balance)
     {
         Stream memory stream = streams[streamId];

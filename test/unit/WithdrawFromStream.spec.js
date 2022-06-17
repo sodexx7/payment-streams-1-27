@@ -46,23 +46,14 @@ describe("Withdraw from stream", () => {
         );
     });
 
-    describe("#success", function () {
+    describe("#reverts", function () {
 
-        it("should emit the WithdrawFromStream event", async function () {
-            let timeToSet = stopTimestamp + 1;
-            await setTime(ethers.provider, timeToSet);
-
+        it("should fail when stream doesn't exist", async function () {
+            let invalidStreamId = 3;
             await expect(
-                streamingContract.connect(recipient1).withdrawFromStream(1)
-            ).to
-                .emit(streamingContract, "WithdrawFromStream")
-                .withArgs(1, recipient1.address);
+                streamingContract.withdrawFromStream(invalidStreamId)
+            ).to.be.revertedWith("stream does not exist");
         });
-
-    });
-
-    describe("#balance check", function () {
-
 
         it("should balance less than deposit and greater than zero after withdrawFromStream executed between startTimestamp and stopTimestamp", async function () {
             
@@ -88,7 +79,7 @@ describe("Withdraw from stream", () => {
         });
 
 
-        it("should revertedWith Available balance is 0 after all balance withraw", async function () {
+        it("should available balance is 0 after all balance withrawed", async function () {
             let timeToSet = stopTimestamp + 1;
             await setTime(ethers.provider, timeToSet);
             await streamingContract.connect(recipient1).withdrawFromStream(1)
@@ -98,7 +89,7 @@ describe("Withdraw from stream", () => {
             ).to.be.revertedWith("Available balance is 0");
         });
 
-        it("should revertedWith Available balance is 0 after cancelStream", async function () {
+        it("should available balance is 0 after cancelStream", async function () {
             let timeToSet = startTimestamp + 10;
             await setTime(ethers.provider, timeToSet);
             await streamingContract.connect(recipient1).cancelStream(1)
@@ -108,7 +99,7 @@ describe("Withdraw from stream", () => {
             ).to.be.revertedWith("Available balance is 0");
         });
 
-        it("should senderEth and recipient1Eth greater than their init eth value after cancelStream", async function () {
+        it("should sender's value and recipient1‘s value greater than their init eth value after cancelStream", async function () {
             let timeToSet = startTimestamp + 50;
             await setTime(ethers.provider, timeToSet);
             initSenderEth = await ethers.provider.getBalance(sender.address);
@@ -126,6 +117,21 @@ describe("Withdraw from stream", () => {
 
     });
 
+    describe("#success", function () {
+
+        it("should emit the WithdrawFromStream event", async function () {
+            let timeToSet = stopTimestamp + 1;
+            await setTime(ethers.provider, timeToSet);
+
+            await expect(
+                streamingContract.connect(recipient1).withdrawFromStream(1)
+            ).to
+                .emit(streamingContract, "WithdrawFromStream")
+                .withArgs(1, recipient1.address);
+        });
+
+    });
+
     describe("#gasCheck", function () {
         it("should happen within the gas limit", async function () {
             let timeToSet = stopTimestamp + 1;
@@ -136,5 +142,16 @@ describe("Withdraw from stream", () => {
             const currentGas = (await streamingContract.connect(recipient1).estimateGas.withdrawFromStream(1)).toNumber();
             assert(currentGas < BASE_GAS_USAGE);
           });
+    });
+
+    describe("#privileges check", function () {
+
+        it("should fail when the caller is not recipient", async function () {
+
+            await expect(
+                streamingContract.connect(owner).withdrawFromStream(1)
+            ).to.be.revertedWith("The caller should be recipient");
+        });
+
     });
 });
