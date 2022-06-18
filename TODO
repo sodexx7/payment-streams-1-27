@@ -1,0 +1,6 @@
+some things to think or to do?
+1.for re-entrance. My current thought is that in the withdrawFromStream Function the balance's calculate based on the block timestamp,so the balance will become very little once set new start time,perhap the avaliale balance equals one seconds, the fallback function in malicious contract will execute many times utill the no gas exists. Next time should try don't set start time,seeing the result;
+2.the ether values type is uint96 which I remembered. But on the hardaht test environment and the payment situtation,how to test is a question. and I think in the actual situtation, this type error perhaps will  never occur.
+3.how to transfer eth in the hardtest environment is a question. For example,in the createStream funciton, when create one CA,how to transfer value. This is very easy in remix.
+5.I thought use foundary test features. but there are pre-conditions must satisfy,such as transfer eth in the createStream funciton,so many new things should famaliar with. Should try in the future.
+
