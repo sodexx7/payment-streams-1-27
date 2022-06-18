@@ -63,7 +63,10 @@ contract Streaming {
         uint256 startTime,
         uint256 stopTime
     ) external payable returns (uint256 streamId) {
-        deposit = msg.value;
+        require(
+            deposit == msg.value,
+            "Please input the deposit equals your transfer amount"
+        );
         require(recipient != address(0x00), "Stream to the zero address");
         require(recipient != address(this), "Stream to the contract itself");
         require(recipient != msg.sender, "Stream to the caller");
