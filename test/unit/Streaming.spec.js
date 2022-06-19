@@ -4,12 +4,21 @@ const { ethers } = require("hardhat");
 describe("Deployment", () => {
 
     let owner;
+    let stream_token_address;
 
     beforeEach("#deploy", async () => {
+
+        StreamToken = await ethers.getContractFactory("StreamToken");
+        streamTokenContract = await StreamToken.deploy();
+
+        await streamTokenContract.deployed();
+        stream_token_address = await streamTokenContract.address;
+
+
         Streaming = await ethers.getContractFactory("Streaming");
         [owner] = await ethers.getSigners();
 
-        streamingContract = await Streaming.deploy();
+        streamingContract = await Streaming.deploy(stream_token_address);
 
         await streamingContract.deployed();
     });

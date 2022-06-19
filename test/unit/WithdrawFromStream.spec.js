@@ -10,25 +10,39 @@ describe("Withdraw from stream", () => {
     let startTimestamp;
     let stopTimestamp;
 
-    let deposit = ethers.utils.parseEther("1");
+    let stream_token_amount = ethers.BigNumber.from("10000000");
     let now = currentTime();
 
     let blockSpacing = 1000;
     let duration;
 
+    let stream_token_address;
+    let streaming_address;
+
     beforeEach("#deploy", async () => {
+        // mint STREAM token and send to sender
+        StreamToken = await ethers.getContractFactory("StreamToken");
+        streamTokenContract = await StreamToken.deploy();
+
+        await streamTokenContract.deployed();
+        stream_token_address = await streamTokenContract.address;
+
         Streaming = await ethers.getContractFactory("Streaming");
         [owner, sender, recipient1, ...addrs] = await ethers.getSigners();
 
-        streamingContract = await Streaming.deploy();
-
+        streamingContract = await Streaming.deploy(stream_token_address);
         await streamingContract.deployed();
-    
-       
+        streaming_address = await streamingContract.address;
         
     });
 
     beforeEach("#setup", async function () {
+        // mint STREAM token and send to sender
+        await streamTokenContract.mint(sender.address,stream_token_amount);
+        // approve streamingContract using sender's StreamToken 
+        await streamTokenContract.connect(sender).approve(streaming_address,stream_token_amount)
+
+
         duration = 100;
         let delay = 100;
 
@@ -39,10 +53,10 @@ describe("Withdraw from stream", () => {
 
         await streamingContract.connect(sender).createStream(
             recipient1.address,
-            deposit,
+            stream_token_amount,
             startTimestamp,
             stopTimestamp,
-            { value: deposit }
+            { value: stream_token_amount }
         );
     });
 
@@ -62,7 +76,7 @@ describe("Withdraw from stream", () => {
 
             await streamingContract.connect(recipient1).withdrawFromStream(1);
             let stream = await streamingContract.connect(recipient1).getStream(1);
-            expect(stream.balance).lt(deposit).gt(0);
+            expect(stream.balance).lt(stream_token_amount).gt(0);
         });
 
         it("should balance’s calculation based on the new startTimestamp after withdrawFromStream", async function () {
@@ -99,17 +113,20 @@ describe("Withdraw from stream", () => {
             ).to.be.revertedWith("Available balance is 0");
         });
 
-        it("should sender's value and recipient1‘s value greater than their init eth value after cancelStream", async function () {
+        it("should sender's value and recipient1‘s value greater than their init stream token value after cancelStream", async function () {
             let timeToSet = startTimestamp + 50;
             await setTime(ethers.provider, timeToSet);
-            initSenderEth = await ethers.provider.getBalance(sender.address);
-            initRecipient1Eth = await ethers.provider.getBalance(recipient1.address);
+
+            initSenderStreamToken = await streamTokenContract.balanceOf(sender.address);
+            initRecipient1StreamToken = await streamTokenContract.balanceOf(recipient1.address);
             await streamingContract.connect(sender).cancelStream(1)
            
-            senderEth = await ethers.provider.getBalance(sender.address);
-            recipient1Eth = await ethers.provider.getBalance(recipient1.address);
-            expect(senderEth).gt(initSenderEth);
-            expect(recipient1Eth).gt(initRecipient1Eth);
+            
+            senderStreamToken = await streamTokenContract.balanceOf(sender.address);
+            recipient1StreamToken = await streamTokenContract.balanceOf(recipient1.address);
+
+            expect(senderStreamToken).gte(initSenderStreamToken);
+            expect(recipient1StreamToken).gte(initRecipient1StreamToken);
 
             let stream = await streamingContract.connect(recipient1).getStream(1);
             expect(stream.balance).eq(0);
@@ -149,7 +166,7 @@ describe("Withdraw from stream", () => {
             let timeToSet = stopTimestamp + 1;
             await setTime(ethers.provider, timeToSet);
 
-            const BASE_GAS_USAGE = 58_100;
+            const BASE_GAS_USAGE = 84_310; // old 58_100
 
             const currentGas = (await streamingContract.connect(recipient1).estimateGas.withdrawFromStream(1)).toNumber();
             assert(currentGas < BASE_GAS_USAGE);

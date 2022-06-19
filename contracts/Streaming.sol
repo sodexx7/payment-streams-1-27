@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import "./StreamToken.sol";
+
 contract Streaming {
     address public owner;
+
+    address stream_token_address;
+    StreamToken immutable stream_token;
 
     mapping(uint256 => Stream) private streams;
 
@@ -53,8 +58,10 @@ contract Streaming {
         uint256 remainingAmount
     );
 
-    constructor() {
+    constructor(address _stream_token_address) {
         owner = msg.sender;
+        // deployed stream contract,set the stream_token.
+        stream_token = StreamToken(_stream_token_address);
     }
 
     function createStream(
@@ -64,8 +71,8 @@ contract Streaming {
         uint256 stopTime
     ) external payable returns (uint256 streamId) {
         require(
-            deposit == msg.value,
-            "Please input the deposit equals your transfer amount"
+            deposit >= stream_token.balanceOf(address(this)),
+            "Please input the avaliable stream token you can transfer"
         );
         require(recipient != address(0x00), "Stream to the zero address");
         require(recipient != address(this), "Stream to the contract itself");
@@ -109,6 +116,15 @@ contract Streaming {
             startTime,
             stopTime
         );
+
+        // transfer Stream token todo:if the below code execute wrongly,what's the situation?  can use tendarly test.
+        bool success = stream_token.transferFrom(
+            msg.sender,
+            address(this),
+            deposit
+        );
+        require(success);
+
         return currentStreamId;
     }
 
@@ -170,9 +186,11 @@ contract Streaming {
 
         streams[streamId].balance -= balance;
         streams[streamId].startTime = block.timestamp;
-        (bool success, ) = payable(streams[streamId].recipient).call{
-            value: balance
-        }("");
+
+        bool success = stream_token.transfer(
+            streams[streamId].recipient,
+            balance
+        );
         require(success);
 
         emit WithdrawFromStream(streamId, streams[streamId].recipient);
@@ -230,11 +248,17 @@ contract Streaming {
         streams[streamId].balance = 0;
 
         if (vestedAmount > 0) {
-            (bool success, ) = payable(recipient).call{value: vestedAmount}("");
+            bool success = stream_token.transfer(
+                streams[streamId].recipient,
+                vestedAmount
+            );
             require(success);
         }
         if (remainingAmount > 0) {
-            (bool success, ) = payable(sender).call{value: remainingAmount}("");
+            bool success = stream_token.transfer(
+                streams[streamId].recipient,
+                remainingAmount
+            );
             require(success);
         }
 
