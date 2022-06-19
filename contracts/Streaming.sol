@@ -84,6 +84,8 @@ contract Streaming {
             "Start time before block timestamp"
         );
 
+        require(stopTime > startTime, "stopTime before or equal startTime");
+
         uint256 duration = stopTime - startTime;
 
         require(deposit >= duration, "Deposit smaller than duration");

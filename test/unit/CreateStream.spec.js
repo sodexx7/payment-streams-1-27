@@ -105,10 +105,11 @@ describe("Create Stream", () => {
 
     describe("#gasCheck", function () {
         it("should happen within the gas limit", async function () {
-            const BASE_GAS_USAGE = 249954 ;// 232_500 old, the add gas mostly is stream_token transfer use ???
+            const BASE_GAS_USAGE = 249977 ;// 232_500 old, the add gas mostly is stream_token transfer use ???
 
             const currentGas = (await streamingContract.connect(sender).estimateGas.createStream(recipient1.address, stream_token_amount, startTimestamp,
                     stopTimestamp)).toNumber();
+            console.log(currentGas);
             assert(currentGas < BASE_GAS_USAGE);
             
           });
