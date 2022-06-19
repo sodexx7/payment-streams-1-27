@@ -76,6 +76,7 @@ contract Streaming {
             startTime >= block.timestamp,
             "Start time before block timestamp"
         );
+        require(stopTime > startTime, "stopTime before or equal startTime");
 
         uint256 duration = stopTime - startTime;
 
