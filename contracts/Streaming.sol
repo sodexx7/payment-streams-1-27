@@ -71,14 +71,14 @@ contract Streaming {
         uint256 stopTime
     ) external payable returns (uint256 streamId) {
         require(
-            deposit >= stream_token.balanceOf(address(this)),
-            "Please input the avaliable stream token you can transfer"
+            deposit <= stream_token.allowance(msg.sender, address(this)) &&
+                deposit > 0,
+            "Deposit less than the streaming contract's stream_token allowance for the sender or is equal to zero "
         );
         require(recipient != address(0x00), "Stream to the zero address");
         require(recipient != address(this), "Stream to the contract itself");
         require(recipient != msg.sender, "Stream to the caller");
 
-        require(deposit > 0, "Deposit is equal to zero");
         require(
             startTime >= block.timestamp,
             "Start time before block timestamp"

@@ -49,32 +49,32 @@ describe("Create Stream", () => {
 
     describe("#reverts", function () {
 
+        it("should fail when the sender have not corresponding enough stream token", async function () {
+            await expect(
+                streamingContract.connect(sender).createStream(recipient1.address, stream_token_amount.add(100), startTimestamp,
+                    stopTimestamp )
+            ).to.be.revertedWith("Deposit less than the streaming contract's stream_token allowance for the sender or is equal to zero");
+        });
+
         it("should fail when recipient address is zero-address", async function () {
             await expect(
                 streamingContract.connect(sender).createStream(ethers.constants.AddressZero, stream_token_amount, startTimestamp,
-                    stopTimestamp, { value: stream_token_amount })
+                    stopTimestamp )
             ).to.be.revertedWith("Stream to the zero address");
         });
 
         it("should fail when sender and recipient are same", async function () {
             await expect(
                 streamingContract.connect(sender).createStream(sender.address, stream_token_amount, startTimestamp,
-                    stopTimestamp, { value: stream_token_amount })
+                    stopTimestamp )
             ).to.be.revertedWith("Stream to the caller");
-        });
-
-        it("should fail when stream_token_amount is 0", async function () {
-            await expect(
-                streamingContract.connect(sender).createStream(recipient1.address, 0, startTimestamp,
-                    stopTimestamp, { value: 0 })
-            ).to.be.revertedWith("Deposit is equal to zero");
         });
 
         it("should fail when start time has already passed before creation of stream", async function () {
             startTimestamp = now - 1;
             await expect(
                 streamingContract.connect(sender).createStream(recipient1.address, stream_token_amount, startTimestamp,
-                    stopTimestamp, { "value": stream_token_amount })
+                    stopTimestamp )
             ).to.be.revertedWith("Start time before block timestamp");
         });
 
@@ -83,7 +83,7 @@ describe("Create Stream", () => {
 
             await expect(
                 streamingContract.connect(sender).createStream(recipient1.address, stream_token_amount, startTimestamp,
-                    stopTimestamp, { "value": stream_token_amount })
+                    stopTimestamp )
             ).to.be.revertedWith("Deposit is not a multiple of time delta");
         });
 
@@ -93,7 +93,7 @@ describe("Create Stream", () => {
         it("should emit CreateStream event", async function () {
             await expect(
                 streamingContract.connect(sender).createStream(recipient1.address, stream_token_amount, startTimestamp,
-                    stopTimestamp, { "value": stream_token_amount })
+                    stopTimestamp )
             ).to
                 .emit(streamingContract, "CreateStream")
                 .withArgs(
@@ -105,10 +105,10 @@ describe("Create Stream", () => {
 
     describe("#gasCheck", function () {
         it("should happen within the gas limit", async function () {
-            const BASE_GAS_USAGE = 249489 ;// 232_500 old
+            const BASE_GAS_USAGE = 249954 ;// 232_500 old, the add gas mostly is stream_token transfer use ???
 
             const currentGas = (await streamingContract.connect(sender).estimateGas.createStream(recipient1.address, stream_token_amount, startTimestamp,
-                    stopTimestamp, { "value": stream_token_amount })).toNumber();
+                    stopTimestamp)).toNumber();
             assert(currentGas < BASE_GAS_USAGE);
             
           });

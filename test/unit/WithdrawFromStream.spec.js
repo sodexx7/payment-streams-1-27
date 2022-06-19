@@ -55,8 +55,7 @@ describe("Withdraw from stream", () => {
             recipient1.address,
             stream_token_amount,
             startTimestamp,
-            stopTimestamp,
-            { value: stream_token_amount }
+            stopTimestamp
         );
     });
 
