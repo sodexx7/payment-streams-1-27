@@ -1,26 +1,31 @@
-const { expect, assert } = require("chai");
-const { ethers } = require("hardhat");
-const { currentTime } = require("../helpers");
+import { expect,assert } from "chai";
+import { ethers } from "hardhat";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { Streaming } from "../../typechain-types";
+const { currentTime } = require("../helpers"); // todo to typescript format
 
 describe("Create Stream", () => {
 
-    let owner;
-    let sender;
-    let recipient1, addrs;
-    let startTimestamp;
-    let stopTimestamp;
+    let streamingContract: Streaming;
+    let owner:SignerWithAddress;
+    let sender:SignerWithAddress;
+    let recipient1:SignerWithAddress;
+    let startTimestamp=0;
+    let stopTimestamp=0;
 
     let deposit = ethers.utils.parseEther("1");
     
     let now = currentTime();
 
     beforeEach("#deploy", async () => {
-        Streaming = await ethers.getContractFactory("Streaming");
-        [owner, sender, recipient1, ...addrs] = await ethers.getSigners();
+
+        const Streaming = await ethers.getContractFactory("Streaming");
+        [owner, sender, recipient1] = await ethers.getSigners();
 
         streamingContract = await Streaming.deploy();
 
         await streamingContract.deployed();
+
     });
 
     beforeEach("#setup", async function () {

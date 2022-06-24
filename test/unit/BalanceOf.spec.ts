@@ -1,23 +1,26 @@
-const { expect, assert } = require("chai");
-const { ethers } = require("hardhat");
-const { currentTime } = require("../helpers");
+import { expect } from "chai";
+import { ethers } from "hardhat";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { Streaming } from "../../typechain-types";
+const { currentTime } = require("../helpers"); // todo to typescript format
 
 describe("Balance of stream", () => {
+   
+    let streamingContract: Streaming;
 
-    let owner;
-    let sender;
-    let recipient1, addrs;
+    let owner:SignerWithAddress;
+    let sender:SignerWithAddress;
+    let recipient1:SignerWithAddress;
     let startTimestamp;
     let stopTimestamp;
 
     let deposit = ethers.utils.parseEther("1");
-    let now = currentTime();
 
     let duration;
 
     beforeEach("#deploy", async () => {
-        Streaming = await ethers.getContractFactory("Streaming");
-        [owner, sender, recipient1, ...addrs] = await ethers.getSigners();
+        const Streaming = await ethers.getContractFactory("Streaming");
+        [owner, sender, recipient1] = await ethers.getSigners();
 
         streamingContract = await Streaming.deploy();
 
@@ -28,7 +31,8 @@ describe("Balance of stream", () => {
         duration = 100;
         let delay = 100;
 
-        startTimestamp = now + delay;
+
+        startTimestamp = currentTime() + delay;
         stopTimestamp = startTimestamp + duration;
 
         await streamingContract.connect(sender).createStream(
@@ -55,7 +59,7 @@ describe("Balance of stream", () => {
 
         it("should return 0 balance for address not involved in stream", async function () {
             const otherPartyBalance = await streamingContract.connect(sender).balanceOf(1, owner.address);
-            assert(otherPartyBalance.eq(0));
+            expect(await otherPartyBalance).to.equal(0);
         });
 
     });
@@ -65,7 +69,7 @@ describe("Balance of stream", () => {
             const BASE_GAS_USAGE = 44_000;
 
             const currentGas = (await streamingContract.connect(sender).estimateGas.balanceOf(1, recipient1.address)).toNumber();
-            assert(currentGas < BASE_GAS_USAGE);
+            expect(await currentGas).to.lt(BASE_GAS_USAGE);
         });
     });
 
