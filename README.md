@@ -4,17 +4,16 @@
 
 https://www.npmjs.com/package/@typechain/hardhat
 
-    ```
+    
     npm install --save-dev @typechain/hardhat @typechain/ethers-v5
-    ```
+    
 
 -    change hardhat.config.js to hardhat.config.ts and add below
 
-    ```
+    
     import '@typechain/hardhat'
     import '@nomiclabs/hardhat-ethers'
     import '@nomiclabs/hardhat-waffle'
-    ```
 
 - add tsconfig.json
     below is example
