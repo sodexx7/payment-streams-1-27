@@ -1,0 +1,5 @@
+
+1.使用foundary编写测试案例
+ 1.现有的测试案例用foundary进行改写
+    todo：使用foundary匹配对应的报错信息
+ 2.模拟修改区块环境

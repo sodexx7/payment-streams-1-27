@@ -1,0 +1,16 @@
+{
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+      },
+      "[typescript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+      },
+      "[javascript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+      },
+      "[solidity]": {
+        "editor.tabSize": 4,
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "NomicFoundation.hardhat-solidity"
+      },
+}

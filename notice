@@ -5,3 +5,5 @@ npm cache clear --force
 
 todo-20220622
 1.编写更多测试案例，测试foundary的特性
+    先选取最基本的功能测试
+    再挑选重点功能进行测试

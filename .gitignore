@@ -1,6 +1,8 @@
 # Foundry
 cache/
 out/
+# address private key
+keystore_forge_test 
 
 # JS
 node_modules/
