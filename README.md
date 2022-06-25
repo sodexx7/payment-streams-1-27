@@ -1,6 +1,6 @@
 
 this ba
-# payment use hardhat and foundary template
+# payment use hardhat(ts) and foundary template
 
 
 * 1.src folder add Streaming.sol
@@ -32,3 +32,13 @@ npx hardhat compile
 npm ERR! Cannot read properties of null (reading 'pickAlgorithm')
 npm cache clear --force
 5.
+
+
+
+foundar 兼容hardhat的操作
+1.For automatic Hardhat support you can also pass the --hh flag, which sets the following flags: --lib-paths node_modules --contracts contracts.
+forge test 参考
+https://github.com/DappCamp-Cohort-3/foundry_starterkit
+1.如何设置对应地址的eth value。
+2.测试环境的node节点 value 如何设置？
+
