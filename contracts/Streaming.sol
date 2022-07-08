@@ -161,21 +161,22 @@ contract Streaming {
         external
         onlyValidateSreamId(streamId)
     {
+        Stream storage stream_this = streams[streamId];
         // check  Recipient
         require(
-            msg.sender == streams[streamId].recipient,
+            msg.sender == stream_this.recipient,
             "The caller should be recipient"
         );
 
         uint256 balance = balanceOf(streamId, msg.sender);
         require(balance > 0, "Available balance is 0");
 
-        streams[streamId].balance -= balance;
-        streams[streamId].lastWithdrawTime = streams[streamId].startTime;
-        streams[streamId].startTime = block.timestamp;
-        (bool success, ) = payable(streams[streamId].recipient).call{
-            value: balance
-        }("");
+        stream_this.balance -= balance;
+        stream_this.lastWithdrawTime = stream_this.startTime;
+        stream_this.startTime = block.timestamp;
+        (bool success, ) = payable(stream_this.recipient).call{value: balance}(
+            ""
+        );
         require(success);
 
         emit WithdrawFromStream(streamId, streams[streamId].recipient);
@@ -223,10 +224,7 @@ contract Streaming {
         (sender, recipient, , , , , , ) = getStream(streamId);
         uint256 vestedAmount = balanceOf(streamId, sender);
 
-        uint256 remainingAmount = balanceOf(
-            streamId,
-            streams[streamId].recipient
-        );
+        uint256 remainingAmount = balanceOf(streamId, recipient);
 
         if (vestedAmount == 0 && remainingAmount == 0) {
             revert("The stream has been cancel or end");
