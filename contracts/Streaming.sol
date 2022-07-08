@@ -219,9 +219,9 @@ contract Streaming {
         // 1）validate streamId
         // 2) validate sender or recipent
         // 3)check stream cancel or end? through by the banlance( sender and recipient)
-        address sender;
-        address recipient;
-        (sender, recipient, , , , , , ) = getStream(streamId);
+        Stream memory stream_this = streams[streamId];
+        address sender = stream_this.sender;
+        address recipient = stream_this.recipient;
         uint256 vestedAmount = balanceOf(streamId, sender);
 
         uint256 remainingAmount = balanceOf(streamId, recipient);
