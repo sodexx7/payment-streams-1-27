@@ -2,11 +2,10 @@
 pragma solidity ^0.8.4;
 
 contract Streaming {
+    uint64 public streamIdCounter;
     address public owner;
 
     mapping(uint256 => Stream) private streams;
-
-    uint64 public streamIdCounter;
 
     modifier onlySenderOrRecipient(uint256 streamId) {
         require(
