@@ -55,7 +55,7 @@ describe("Cancel stream", () => {
             
             await expect(
                 streamingContract.connect(recipient1).cancelStream(1)
-            ).to.be.revertedWith("The stream has been cancel or end");
+            ).to.be.revertedWith("caller is not the sender or the recipient of the stream"); // when cancelStream the stream info all delete,so the sender or recipient can't call the cancelStream
         });
 
     });
@@ -78,7 +78,7 @@ describe("Cancel stream", () => {
 
             const currentGas = (await streamingContract.connect(recipient1).estimateGas.cancelStream(1)).toNumber();
             assert(currentGas < BASE_GAS_USAGE);
-            console.log(currentGas) // 88_100 ->62841(Multiple storage accesses update)
+            //console.log(currentGas) // 88_100 ->62841(Multiple storage accesses update)->80120(when use delete streams[streamId];)
         });
     });
 

@@ -226,11 +226,7 @@ contract Streaming {
 
         uint256 remainingAmount = balanceOf(streamId, recipient);
 
-        if (vestedAmount == 0 && remainingAmount == 0) {
-            revert("The stream has been cancel or end");
-        }
-
-        streams[streamId].balance = 0;
+        delete streams[streamId];
 
         if (vestedAmount > 0) {
             (bool success, ) = payable(recipient).call{value: vestedAmount}("");

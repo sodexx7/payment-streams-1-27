@@ -89,14 +89,14 @@ describe("Withdraw from stream", () => {
             ).to.be.revertedWith("Available balance is 0");
         });
 
-        it("should available balance is 0 after cancelStream", async function () {
+        it("should can't call the withdrawFromStream because the stream delete after cancelStream", async function () {
             let timeToSet = startTimestamp + 10;
             await setTime(ethers.provider, timeToSet);
             await streamingContract.connect(recipient1).cancelStream(1)
           
             await expect(
                 streamingContract.connect(recipient1).withdrawFromStream(1)
-            ).to.be.revertedWith("Available balance is 0");
+            ).to.be.revertedWith("The caller should be recipient");
         });
 
         it("should sender's value and recipient1‘s value greater than their init eth value after cancelStream", async function () {
@@ -115,16 +115,19 @@ describe("Withdraw from stream", () => {
             expect(stream.balance).eq(0);
         });
 
-        it("should fail when stream has been end and withrawed,and then cancelStream", async function () {
+        it("should the stream info did't exists when stream has end and withrawed,and then cancelStream", async function () {
             let timeToSet = stopTimestamp + 1;
             await setTime(ethers.provider, timeToSet);
             
-            await streamingContract.connect(recipient1).withdrawFromStream(1)
-            await expect(
-                
-                streamingContract.connect(recipient1).cancelStream(1)
-            ).to.be.revertedWith("The stream has been cancel or end");
-         
+            await streamingContract.connect(recipient1).withdrawFromStream(1);
+            await streamingContract.connect(recipient1).cancelStream(1);
+            
+            let stream = await streamingContract.connect(recipient1).getStream(1);
+            expect(stream.deposit.eq(0))
+            expect(stream.startTime.eq(0))
+            expect(stream.stopTime.eq(0))
+            expect(stream.lastWithdrawTime.eq(0))
+            
         });
 
     });
