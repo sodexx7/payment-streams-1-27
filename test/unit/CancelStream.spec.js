@@ -74,11 +74,10 @@ describe("Cancel stream", () => {
 
     describe("#gasCheck", function () {
         it("should happen within the gas limit", async function () {
-            const BASE_GAS_USAGE = 88_100;
+            const BASE_GAS_USAGE = 80259;
 
             const currentGas = (await streamingContract.connect(recipient1).estimateGas.cancelStream(1)).toNumber();
             assert(currentGas < BASE_GAS_USAGE);
-            //console.log(currentGas) // 88_100 ->62841(Multiple storage accesses update)->80120(when use delete streams[streamId];)
         });
     });
 

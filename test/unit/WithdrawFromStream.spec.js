@@ -168,11 +168,10 @@ describe("Withdraw from stream", () => {
             let timeToSet = stopTimestamp + 1;
             await setTime(ethers.provider, timeToSet);
 
-            const BASE_GAS_USAGE = 80209;// 58_100 orgin before add lastWithdrawTime
+            const BASE_GAS_USAGE = 79882;
             
 
             const currentGas = (await streamingContract.connect(recipient1).estimateGas.withdrawFromStream(1)).toNumber();
-            console.log(currentGas) // 80208=>80199 
             assert(currentGas < BASE_GAS_USAGE);
             
           });

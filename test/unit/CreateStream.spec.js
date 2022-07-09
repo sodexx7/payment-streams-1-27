@@ -89,11 +89,12 @@ describe("Create Stream", () => {
 
     describe("#gasCheck", function () {
         it("should happen within the gas limit", async function () {
-            const BASE_GAS_USAGE = 232_500;
+            const BASE_GAS_USAGE = 190085;
 
             const currentGas = (await streamingContract.connect(sender).estimateGas.createStream(recipient1.address, deposit, startTimestamp,
                     stopTimestamp, { "value": deposit })).toNumber();
             assert(currentGas < BASE_GAS_USAGE);
+            console.log(currentGas);
           });
     });
 });
