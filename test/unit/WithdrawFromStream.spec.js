@@ -1,6 +1,6 @@
 const { expect, assert } = require("chai");
 const { ethers } = require("hardhat");
-const { setTime, currentTime } = require("../helpers");
+const { setTime, currentTime,sleep } = require("../helpers");
 
 describe("Withdraw from stream", () => {
 
@@ -24,8 +24,6 @@ describe("Withdraw from stream", () => {
 
         await streamingContract.deployed();
     
-       
-        
     });
 
     beforeEach("#setup", async function () {
@@ -55,28 +53,7 @@ describe("Withdraw from stream", () => {
             ).to.be.revertedWith("stream does not exist");
         });
 
-        it("should balance less than deposit and greater than zero after withdrawFromStream executed between startTimestamp and stopTimestamp", async function () {
-            
-            let timeToSet = startTimestamp + 10;
-            await setTime(ethers.provider, timeToSet);
-
-            await streamingContract.connect(recipient1).withdrawFromStream(1);
-            let stream = await streamingContract.connect(recipient1).getStream(1);
-            expect(stream.balance).lt(deposit).gt(0);
-        });
-
-        it("should balance’s calculation based on the new startTimestamp after withdrawFromStream", async function () {
-            let timeToSet = startTimestamp + 10;
-            await setTime(ethers.provider, timeToSet);
-
-            const beforeBalance =  await streamingContract.connect(recipient1).balanceOf(1,recipient1.address);
-            await streamingContract.connect(recipient1).withdrawFromStream(1);
-            await setTime(ethers.provider, timeToSet+5);
-            const afterBalance =  await streamingContract.connect(recipient1).balanceOf(1,recipient1.address);
-            // for the new startTimestamp, the elapsedTime is 5,last startTimestamp Corresponding elapsedTime is 10。
-            expect(afterBalance).lt(beforeBalance)
-            
-        });
+   
 
 
         it("should available balance is 0 after all balance withrawed", async function () {
@@ -159,6 +136,68 @@ describe("Withdraw from stream", () => {
 
             expect(lastWithTimedrawAfterWithDraw.gt(lastWithdrawTime))
             expect(lastWithTimedrawAfterWithDraw.lt(streamAfterWithDraw.startTime))
+        });
+
+        it("should balance less than deposit and greater than zero after withdrawFromStream executed between startTimestamp and stopTimestamp", async function () {
+            
+            let timeToSet = startTimestamp + 10;
+            await setTime(ethers.provider, timeToSet);
+
+            await streamingContract.connect(recipient1).withdrawFromStream(1);
+            let stream = await streamingContract.connect(recipient1).getStream(1);
+            expect(stream.balance).lt(deposit).gt(0);
+        });
+
+        it("should balance’s calculation based on the new startTimestamp after withdrawFromStream", async function () {
+            let timeToSet = startTimestamp + 10;
+            await setTime(ethers.provider, timeToSet);
+
+            const beforeBalance =  await streamingContract.connect(recipient1).balanceOf(1,recipient1.address);
+            await streamingContract.connect(recipient1).withdrawFromStream(1);
+            await setTime(ethers.provider, timeToSet+5);
+            const afterBalance =  await streamingContract.connect(recipient1).balanceOf(1,recipient1.address);
+            // for the new startTimestamp, the elapsedTime is 5,last startTimestamp Corresponding elapsedTime is 10。
+            expect(afterBalance).lt(beforeBalance)
+            
+        });
+
+        it("after multiple withdrawals should have correcct balance", async function () {
+            // let timeToSet = startTimestamp + 10;
+            // await setTime(ethers.provider, timeToSet);
+
+            let stream0 = await streamingContract.connect(recipient1).getStream(1);
+            let stream0Balance = ethers.BigNumber.from(stream0.balance+''); 
+            // console.log(stream0Balance)
+            let timeToSet = startTimestamp + 10;
+            await setTime(ethers.provider, timeToSet);
+            await streamingContract.connect(recipient1).withdrawFromStream(1);
+            let stream = await streamingContract.connect(recipient1).getStream(1);
+            // This look complicated, the reason can look below; if have time, to use more simple and more readably method
+            // https://docs.ethers.io/v5/troubleshooting/errors/#help-NUMERIC_FAULT-overflow
+            
+            let streamBalance = ethers.BigNumber.from(stream.balance+'');
+            let minswithDrawBalance1 = ethers.BigNumber.from(stream.rate*10+'');
+            expect(streamBalance).lte(stream0Balance.sub(minswithDrawBalance1))
+            // console.log(streamBalance.sub(minswithDrawBalance1));
+
+
+            await sleep(2000);
+            await streamingContract.connect(recipient1).withdrawFromStream(1);
+            let stream2 = await streamingContract.connect(recipient1).getStream(1);
+            let stream2Balance = ethers.BigNumber.from(stream2.balance+'');
+            let minswithDrawBalance2 = ethers.BigNumber.from(stream2.rate*2+'');
+            expect(stream2Balance).lte(streamBalance.sub(minswithDrawBalance2))
+            // console.log(stream2Balance);
+
+
+            await sleep(2000);
+            await streamingContract.connect(recipient1).withdrawFromStream(1);
+            let stream3 = await streamingContract.connect(recipient1).getStream(1);
+            let stream3Balance = ethers.BigNumber.from(stream3.balance+'');
+            let minswithDrawBalance3 = ethers.BigNumber.from(stream3.rate*2+'');
+            expect(stream3Balance).lte(stream2Balance.sub(minswithDrawBalance3))
+            // console.log(stream3Balance);
+
         });
 
     });
