@@ -33,6 +33,15 @@ describe("Create Stream", () => {
 
     describe("#reverts", function () {
 
+        it("should fail when the deposit not equals your transfer amount", async function () {
+            let deposit_modify = ethers.BigNumber.from(deposit+'').add(1);
+            await expect(
+
+                streamingContract.connect(sender).createStream(ethers.constants.AddressZero, deposit_modify, startTimestamp,
+                    stopTimestamp, { value: deposit })
+            ).to.be.revertedWith("Please input the deposit equals your transfer amount");
+        });
+
         it("should fail when recipient address is zero-address", async function () {
             await expect(
                 streamingContract.connect(sender).createStream(ethers.constants.AddressZero, deposit, startTimestamp,
