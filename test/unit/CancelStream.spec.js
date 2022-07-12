@@ -91,11 +91,11 @@ describe("Cancel stream", () => {
 
     describe("#gasCheck", function () {
         it("should happen within the gas limit", async function () {
-            const BASE_GAS_USAGE = 88_100;
+            const BASE_GAS_USAGE = 90550;
 
             const currentGas = (await streamingContract.connect(recipient1).estimateGas.cancelStream(1)).toNumber();
-            assert(currentGas < BASE_GAS_USAGE);
             console.log(currentGas);
+            assert(currentGas < BASE_GAS_USAGE);
         });
     });
 

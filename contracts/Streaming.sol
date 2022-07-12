@@ -31,6 +31,7 @@ contract Streaming {
         uint256 deposit;
         uint256 startTime;
         uint256 stopTime;
+        uint256 lastWithdrawTime;
         uint256 rate;
         uint256 balance;
     }
@@ -106,7 +107,8 @@ contract Streaming {
             recipient: recipient,
             sender: msg.sender,
             startTime: startTime,
-            stopTime: stopTime
+            stopTime: stopTime,
+            lastWithdrawTime: 0
         });
 
         emit CreateStream(
@@ -186,6 +188,7 @@ contract Streaming {
         require(balance > 0, "Available balance is 0");
 
         streams[streamId].balance -= balance;
+        streams[streamId].lastWithdrawTime = streams[streamId].startTime;
         streams[streamId].startTime = block.timestamp;
 
         bool success = stream_token.transfer(
@@ -208,6 +211,7 @@ contract Streaming {
             uint256 balance,
             uint256 startTime,
             uint256 stopTime,
+            uint256 lastWithdrawTime,
             uint256 rate
         )
     {
@@ -219,6 +223,7 @@ contract Streaming {
             stream.balance,
             stream.startTime,
             stream.stopTime,
+            stream.lastWithdrawTime,
             stream.rate
         );
     }
@@ -234,7 +239,7 @@ contract Streaming {
         // 3)check stream cancel or end? through by the banlance( sender and recipient)
         address sender;
         address recipient;
-        (sender, recipient, , , , , ) = getStream(streamId);
+        (sender, recipient, , , , , , ) = getStream(streamId);
         uint256 vestedAmount = balanceOf(streamId, sender);
 
         uint256 remainingAmount = balanceOf(

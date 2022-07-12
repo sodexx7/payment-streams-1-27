@@ -158,6 +158,22 @@ describe("Withdraw from stream", () => {
                 .withArgs(1, recipient1.address);
         });
 
+        it("LastWithdrawTime should update After Withdraw", async function () {
+            let stream = await streamingContract.connect(recipient1).getStream(1);
+            let lastWithdrawTime = stream.lastWithdrawTime;
+
+            let timeToSet = stopTimestamp + 1;
+            await setTime(ethers.provider, timeToSet);
+
+            streamingContract.connect(recipient1).withdrawFromStream(1)
+
+            let streamAfterWithDraw = await streamingContract.connect(recipient1).getStream(1);
+            let lastWithTimedrawAfterWithDraw = streamAfterWithDraw.lastWithdrawTime;
+
+            expect(lastWithTimedrawAfterWithDraw.gt(lastWithdrawTime))
+            expect(lastWithTimedrawAfterWithDraw.lt(streamAfterWithDraw.startTime))
+        });
+
     });
 
     describe("#gasCheck", function () {
@@ -165,7 +181,7 @@ describe("Withdraw from stream", () => {
             let timeToSet = stopTimestamp + 1;
             await setTime(ethers.provider, timeToSet);
 
-            const BASE_GAS_USAGE = 84_431; // old 58_100
+            const BASE_GAS_USAGE = 107232; // old 58_100 
 
             const currentGas = (await streamingContract.connect(recipient1).estimateGas.withdrawFromStream(1)).toNumber();
             console.log(currentGas);
