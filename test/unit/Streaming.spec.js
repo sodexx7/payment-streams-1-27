@@ -18,7 +18,7 @@ describe("Deployment", () => {
 
         describe("Deployment", function () {
             it("Should set the right owner", async function () {
-                expect(await streamingContract.owner()).to.equal(owner.address);
+                expect(await streamingContract._stream_token_address()).to.equal(owner.address);
             });
         });
 

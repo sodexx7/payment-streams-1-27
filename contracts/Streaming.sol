@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 contract Streaming {
     uint64 public streamIdCounter;
-    address public owner;
+    address public _stream_token_address;
 
     mapping(uint64 => Stream) private streams;
 
@@ -15,7 +15,7 @@ contract Streaming {
         );
         _;
     }
-    modifier onlyValidateSreamId(uint64 streamId) {
+    modifier onlyExistSream(uint64 streamId) {
         require(streamId <= streamIdCounter, "stream does not exist");
         _;
     }
@@ -54,7 +54,7 @@ contract Streaming {
     );
 
     constructor() {
-        owner = msg.sender;
+        _stream_token_address = msg.sender;
     }
 
     function createStream(
@@ -117,7 +117,7 @@ contract Streaming {
     function balanceOf(uint64 streamId, address who)
         public
         view
-        onlyValidateSreamId(streamId)
+        onlyExistSream(streamId)
         onlySenderOrRecipient(streamId)
         returns (uint256 balance)
     {
@@ -141,7 +141,7 @@ contract Streaming {
     function elapsedTimeFor(uint64 streamId)
         private
         view
-        onlyValidateSreamId(streamId)
+        onlyExistSream(streamId)
         returns (uint256 delta)
     {
         Stream memory stream = streams[streamId];
@@ -159,7 +159,7 @@ contract Streaming {
 
     function withdrawFromStream(uint64 streamId)
         external
-        onlyValidateSreamId(streamId)
+        onlyExistSream(streamId)
     {
         Stream storage stream_this = streams[streamId];
         // check  Recipient
@@ -185,7 +185,7 @@ contract Streaming {
     function getStream(uint64 streamId)
         public
         view
-        onlyValidateSreamId(streamId)
+        onlyExistSream(streamId)
         returns (
             address sender,
             address recipient,
@@ -212,7 +212,7 @@ contract Streaming {
 
     function cancelStream(uint64 streamId)
         external
-        onlyValidateSreamId(streamId)
+        onlyExistSream(streamId)
         onlySenderOrRecipient(streamId)
     {
         // check state
