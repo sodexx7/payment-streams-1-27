@@ -20,7 +20,7 @@ contract Streaming {
         );
         _;
     }
-    modifier onlyValidateSreamId(uint64 streamId) {
+    modifier onlyExistSream(uint64 streamId) {
         require(streamId <= streamIdCounter, "stream does not exist");
         _;
     }
@@ -132,7 +132,7 @@ contract Streaming {
     function balanceOf(uint64 streamId, address who)
         public
         view
-        onlyValidateSreamId(streamId)
+        onlyExistSream(streamId)
         onlySenderOrRecipient(streamId)
         returns (uint256 balance)
     {
@@ -156,7 +156,7 @@ contract Streaming {
     function elapsedTimeFor(uint64 streamId)
         private
         view
-        onlyValidateSreamId(streamId)
+        onlyExistSream(streamId)
         returns (uint256 delta)
     {
         Stream memory stream = streams[streamId];
@@ -174,7 +174,7 @@ contract Streaming {
 
     function withdrawFromStream(uint64 streamId)
         external
-        onlyValidateSreamId(streamId)
+        onlyExistSream(streamId)
     {
         // check  Recipient
         require(
@@ -200,7 +200,7 @@ contract Streaming {
     function getStream(uint64 streamId)
         public
         view
-        onlyValidateSreamId(streamId)
+        onlyExistSream(streamId)
         returns (
             address sender,
             address recipient,
@@ -225,7 +225,7 @@ contract Streaming {
 
     function cancelStream(uint64 streamId)
         external
-        onlyValidateSreamId(streamId)
+        onlyExistSream(streamId)
         onlySenderOrRecipient(streamId)
     {
         // check state
