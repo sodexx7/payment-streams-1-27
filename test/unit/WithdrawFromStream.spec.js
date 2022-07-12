@@ -169,6 +169,7 @@ describe("Withdraw from stream", () => {
 
             const currentGas = (await streamingContract.connect(recipient1).estimateGas.withdrawFromStream(1)).toNumber();
             assert(currentGas < BASE_GAS_USAGE);
+            console.log(currentGas)
           });
     });
 

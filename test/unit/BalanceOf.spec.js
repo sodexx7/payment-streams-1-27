@@ -83,6 +83,7 @@ describe("Balance of stream", () => {
 
             const currentGas = (await streamingContract.connect(sender).estimateGas.balanceOf(1, recipient1.address)).toNumber();
             assert(currentGas < BASE_GAS_USAGE);
+            console.log(currentGas);
         });
     });
 

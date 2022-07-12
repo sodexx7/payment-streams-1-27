@@ -4,14 +4,13 @@ pragma solidity ^0.8.4;
 import "./StreamToken.sol";
 
 contract Streaming {
-    address public owner;
+    uint64 public streamIdCounter;
+    address public _stream_token_address;
 
-    address stream_token_address;
+    address stream_coin_token_address;
     StreamToken immutable stream_token;
 
     mapping(uint256 => Stream) private streams;
-
-    uint64 public streamIdCounter;
 
     modifier onlySenderOrRecipient(uint256 streamId) {
         require(
@@ -58,10 +57,10 @@ contract Streaming {
         uint256 remainingAmount
     );
 
-    constructor(address _stream_token_address) {
-        owner = msg.sender;
+    constructor(address _stream_coin_token_address) {
+        _stream_token_address = msg.sender;
         // deployed stream contract,set the stream_token.
-        stream_token = StreamToken(_stream_token_address);
+        stream_token = StreamToken(_stream_coin_token_address);
     }
 
     function createStream(
