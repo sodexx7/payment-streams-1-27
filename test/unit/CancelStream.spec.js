@@ -95,6 +95,7 @@ describe("Cancel stream", () => {
 
             const currentGas = (await streamingContract.connect(recipient1).estimateGas.cancelStream(1)).toNumber();
             assert(currentGas < BASE_GAS_USAGE);
+            console.log(currentGas);
         });
     });
 

@@ -10,9 +10,9 @@ contract Streaming {
     address stream_coin_token_address;
     StreamToken immutable stream_token;
 
-    mapping(uint256 => Stream) private streams;
+    mapping(uint64 => Stream) private streams;
 
-    modifier onlySenderOrRecipient(uint256 streamId) {
+    modifier onlySenderOrRecipient(uint64 streamId) {
         require(
             msg.sender == streams[streamId].sender ||
                 msg.sender == streams[streamId].recipient,
@@ -20,7 +20,7 @@ contract Streaming {
         );
         _;
     }
-    modifier onlyValidateSreamId(uint256 streamId) {
+    modifier onlyValidateSreamId(uint64 streamId) {
         require(streamId <= streamIdCounter, "stream does not exist");
         _;
     }
@@ -36,7 +36,7 @@ contract Streaming {
     }
 
     event CreateStream(
-        uint256 indexed streamId,
+        uint64 indexed streamId,
         address indexed sender,
         address indexed recipient,
         uint256 deposit,
@@ -45,12 +45,12 @@ contract Streaming {
     );
 
     event WithdrawFromStream(
-        uint256 indexed streamId,
+        uint64 indexed streamId,
         address indexed recipient
     );
 
     event CancelStream(
-        uint256 indexed streamId,
+        uint64 indexed streamId,
         address indexed sender,
         address indexed recipient,
         uint256 vestedAmount,
@@ -68,7 +68,7 @@ contract Streaming {
         uint256 deposit,
         uint256 startTime,
         uint256 stopTime
-    ) external payable returns (uint256 streamId) {
+    ) external payable returns (uint64 streamId) {
         require(
             deposit <= stream_token.allowance(msg.sender, address(this)) &&
                 deposit > 0,
@@ -94,7 +94,7 @@ contract Streaming {
         );
 
         streamIdCounter += 1;
-        uint256 currentStreamId = streamIdCounter;
+        uint64 currentStreamId = streamIdCounter;
 
         // Rate Per second
         uint256 rate = deposit / duration;
@@ -129,7 +129,7 @@ contract Streaming {
         return currentStreamId;
     }
 
-    function balanceOf(uint256 streamId, address who)
+    function balanceOf(uint64 streamId, address who)
         public
         view
         onlyValidateSreamId(streamId)
@@ -153,7 +153,7 @@ contract Streaming {
         }
     }
 
-    function elapsedTimeFor(uint256 streamId)
+    function elapsedTimeFor(uint64 streamId)
         private
         view
         onlyValidateSreamId(streamId)
@@ -172,7 +172,7 @@ contract Streaming {
         return stream.stopTime - stream.startTime;
     }
 
-    function withdrawFromStream(uint256 streamId)
+    function withdrawFromStream(uint64 streamId)
         external
         onlyValidateSreamId(streamId)
     {
@@ -197,7 +197,7 @@ contract Streaming {
         emit WithdrawFromStream(streamId, streams[streamId].recipient);
     }
 
-    function getStream(uint256 streamId)
+    function getStream(uint64 streamId)
         public
         view
         onlyValidateSreamId(streamId)
@@ -223,7 +223,7 @@ contract Streaming {
         );
     }
 
-    function cancelStream(uint256 streamId)
+    function cancelStream(uint64 streamId)
         external
         onlyValidateSreamId(streamId)
         onlySenderOrRecipient(streamId)
