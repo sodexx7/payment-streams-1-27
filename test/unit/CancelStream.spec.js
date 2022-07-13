@@ -72,7 +72,7 @@ describe("Cancel stream", () => {
             
             await expect(
                 streamingContract.connect(recipient1).cancelStream(1)
-            ).to.be.revertedWith("The stream has been cancel or end");
+            ).to.be.revertedWith("caller is not the sender or the recipient of the stream"); // when cancelStream the stream info all delete,so the sender or recipient can't call the cancelStream
         });
 
     });
@@ -91,7 +91,7 @@ describe("Cancel stream", () => {
 
     describe("#gasCheck", function () {
         it("should happen within the gas limit", async function () {
-            const BASE_GAS_USAGE = 90550;
+            const BASE_GAS_USAGE = 107304;
 
             const currentGas = (await streamingContract.connect(recipient1).estimateGas.cancelStream(1)).toNumber();
             console.log(currentGas);

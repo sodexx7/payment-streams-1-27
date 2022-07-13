@@ -183,13 +183,14 @@ contract Streaming {
             msg.sender == streams[streamId].recipient,
             "The caller should be recipient"
         );
+        Stream storage stream_this = streams[streamId];
 
         uint256 balance = balanceOf(streamId, msg.sender);
         require(balance > 0, "Available balance is 0");
 
-        streams[streamId].balance -= balance;
-        streams[streamId].lastWithdrawTime = streams[streamId].startTime;
-        streams[streamId].startTime = block.timestamp;
+        stream_this.balance -= balance;
+        stream_this.lastWithdrawTime = stream_this.startTime;
+        stream_this.startTime = block.timestamp;
 
         bool success = stream_token.transfer(
             streams[streamId].recipient,
@@ -237,34 +238,21 @@ contract Streaming {
         // 1）validate streamId
         // 2) validate sender or recipent
         // 3)check stream cancel or end? through by the banlance( sender and recipient)
-        address sender;
-        address recipient;
-        (sender, recipient, , , , , , ) = getStream(streamId);
+        Stream memory stream_this = streams[streamId];
+        address sender = stream_this.sender;
+        address recipient = stream_this.recipient;
         uint256 vestedAmount = balanceOf(streamId, sender);
 
-        uint256 remainingAmount = balanceOf(
-            streamId,
-            streams[streamId].recipient
-        );
+        uint256 remainingAmount = balanceOf(streamId, recipient);
 
-        if (vestedAmount == 0 && remainingAmount == 0) {
-            revert("The stream has been cancel or end");
-        }
-
-        streams[streamId].balance = 0;
+        delete streams[streamId];
 
         if (vestedAmount > 0) {
-            bool success = stream_token.transfer(
-                streams[streamId].recipient,
-                vestedAmount
-            );
+            bool success = stream_token.transfer(sender, vestedAmount);
             require(success);
         }
         if (remainingAmount > 0) {
-            bool success = stream_token.transfer(
-                streams[streamId].recipient,
-                remainingAmount
-            );
+            bool success = stream_token.transfer(recipient, remainingAmount);
             require(success);
         }
 
