@@ -101,6 +101,18 @@ describe("Create Stream", () => {
                 );
         });
 
+        it("should sender(samrt_contract owner)'s streamToken balance equal zero after CreateStream", async function () {
+
+            let balance0 = await streamTokenContract.connect(sender).balanceOf(sender.address);
+            // console.log(balance0);
+            await streamingContract.connect(sender).createStream(recipient1.address, stream_token_amount, startTimestamp,
+                stopTimestamp )
+            let balance = await streamTokenContract.connect(sender).balanceOf(sender.address);
+            // console.log(balance)
+            expect(balance).eq(0)
+
+        });
+
     });
 
     describe("#gasCheck", function () {
